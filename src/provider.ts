@@ -11,10 +11,6 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     static scheme = 'dired'; // ex: dired://<directory>
 
     private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
-    private _editorDecoration = vscode.window.createTextEditorDecorationType({
-        textDecoration: 'underline',
-        isWholeLine: true,
-    });
     private _files: ReferencesDocument[];
     private _fixed_window: boolean;
     private _dirname: string;
@@ -25,7 +21,6 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
 
     dispose() {
         this._files = [];
-        this._editorDecoration.dispose();
         this._onDidChange.dispose();
     }
 
@@ -82,6 +77,10 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             return;
         }
         this.readDir(dirname);
+        vscode.window.activeTextEditor.options = {
+             cursorStyle: vscode.TextEditorCursorStyle.Underline,
+        };
+
         return this.render();
     }
 
