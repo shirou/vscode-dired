@@ -21,7 +21,7 @@
   "keywords": [
     "filer",
     "dired"
-  ],  
+  ],
   "activationEvents": [
     "onCommand:extension.dired.open"
   ],

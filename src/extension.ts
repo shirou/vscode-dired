@@ -40,7 +40,6 @@ export function activate(context: vscode.ExtensionContext): ExctensionInternal {
             provider.rename(newName);
         });
     });
-        
     const commandCopy = vscode.commands.registerCommand("extension.dired.copy", () => {
         vscode.window.showInputBox()
         .then((newName: string) => {
@@ -49,6 +48,9 @@ export function activate(context: vscode.ExtensionContext): ExctensionInternal {
     });
     const commandGoUpDir = vscode.commands.registerCommand("extension.dired.goUpDir", () => {
         provider.goUpDir();
+    });
+    const commandRefresh = vscode.commands.registerCommand("extension.dired.refresh", () => {
+        provider.reload();
     });
     const commandClose = vscode.commands.registerCommand("extension.dired.close", () => {
         vscode.commands.executeCommand('workbench.action.closeActiveEditor');
@@ -62,6 +64,7 @@ export function activate(context: vscode.ExtensionContext): ExctensionInternal {
         commandRename,
         commandCopy,
         commandGoUpDir,
+        commandRefresh,
         commandClose,
         providerRegistrations
     );
