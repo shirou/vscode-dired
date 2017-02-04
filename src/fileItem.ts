@@ -10,7 +10,7 @@ import { IDResolver } from './IDResolver';
 import { encodeLocation, decodeLocation } from './utils';
 
 
-export default class ReferencesDocument {
+export default class FileItem {
     private _uri: vscode.Uri;
     private _stats: fs.Stats;
     private _dirname: string;
@@ -27,8 +27,12 @@ export default class ReferencesDocument {
         this._mode = new Mode(this._stats);
     }
 
-    select(flag: boolean): void{
-        this._selected = flag;
+    toggleSelect(): void{
+        if (this._selected) {
+            this._selected = false;
+        } else {
+            this._selected = true;
+        }
     }
 
     get path(): string {
@@ -39,15 +43,18 @@ export default class ReferencesDocument {
     }
 
     public line(column: Number): string {
-        const u = ReferencesDocument._resolver.username(this._stats.uid);
-        const g = ReferencesDocument._resolver.groupname(this._stats.gid);
+        const u = FileItem._resolver.username(this._stats.uid);
+        const g = FileItem._resolver.groupname(this._stats.gid);
         const size = this.pad(this._stats.size, 8, " ");
         const month = this.pad(this._stats.ctime.getMonth()+1, 2, "0");
         const day = this.pad(this._stats.ctime.getDay(), 2, "0");
         const hour = this.pad(this._stats.ctime.getHours(), 2, "0");
         const min = this.pad(this._stats.ctime.getMinutes(), 2, "0");
-
-        return `${this._mode.toString()} ${u} ${g} ${size} ${month} ${day} ${hour}:${min} ${this._filename}`;
+        let se = " ";
+        if (this._selected) {
+            se = "*";
+        }
+        return `${se} ${this._mode.toString()} ${u} ${g} ${size} ${month} ${day} ${hour}:${min} ${this._filename}`;
     }
 
     public uri(fixed_window: boolean): vscode.Uri {

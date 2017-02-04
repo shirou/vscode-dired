@@ -65,6 +65,11 @@
         "when": "dired.open"
       },
       {
+        "key": "space",
+        "command": "extension.dired.select",
+        "when": "dired.open"
+      },
+      {
         "key": "q",
         "command": "extension.dired.close",
         "when": "dired.open"

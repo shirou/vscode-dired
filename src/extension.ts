@@ -24,7 +24,6 @@ export function activate(context: vscode.ExtensionContext): ExctensionInternal {
             .then(() => vscode.workspace.openTextDocument(FXIED_URI))
             .then(doc => vscode.window.showTextDocument(doc, 0));
     });
-
     const commandEnter = vscode.commands.registerCommand("extension.dired.enter", () => {
         provider.enter();
     });
@@ -52,6 +51,9 @@ export function activate(context: vscode.ExtensionContext): ExctensionInternal {
     const commandRefresh = vscode.commands.registerCommand("extension.dired.refresh", () => {
         provider.reload();
     });
+    const commandSelect = vscode.commands.registerCommand("extension.dired.select", () => {
+        provider.select();
+    });
     const commandClose = vscode.commands.registerCommand("extension.dired.close", () => {
         vscode.commands.executeCommand('workbench.action.closeActiveEditor');
     });
@@ -66,6 +68,7 @@ export function activate(context: vscode.ExtensionContext): ExctensionInternal {
         commandGoUpDir,
         commandRefresh,
         commandClose,
+        commandSelect,
         providerRegistrations
     );
 

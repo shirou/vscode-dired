@@ -5,13 +5,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import { encodeLocation, decodeLocation, FXIED_URI } from './utils';
-import ReferencesDocument from './referencesDocument';
+import FileItem from './fileItem';
 
 export default class DiredProvider implements vscode.TextDocumentContentProvider {
     static scheme = 'dired'; // ex: dired://<directory>
 
     private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
-    private _files: ReferencesDocument[];
+    private _files: FileItem[];
     private _fixed_window: boolean;
     private _dirname: string;
 
@@ -28,10 +28,13 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         return this._onDidChange.event;
     }
 
-    setDirName(dir: string): Thenable<string>{
+    setDirName(dirname: string): Thenable<string>{
         return new Promise((resolve) => {
-            this._dirname = dir;
-            resolve(dir);
+            this._dirname = dirname;
+            if (fs.lstatSync(this._dirname).isDirectory()) {
+                this.readDir(dirname);
+            }
+            resolve(dirname);
         });
     }
 
@@ -55,6 +58,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         const uri = f.uri(this._fixed_window);
         this._onDidChange.fire(uri);
     }
+
     render() {
         let lines = [
             this._dirname + ":", // header line
@@ -71,12 +75,10 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     }
 
     provideTextDocumentContent(uri: vscode.Uri): string | Thenable<string> {       
-        const dirname = this._dirname;
-        if (fs.lstatSync(dirname).isFile()) {
+        if (fs.lstatSync(this._dirname).isFile()) {
             this.showFile(uri);
             return;
         }
-        this.readDir(dirname);
         vscode.window.activeTextEditor.options = {
              cursorStyle: vscode.TextEditorCursorStyle.Underline,
         };
@@ -89,7 +91,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         const files = [".", ".."].concat(fs.readdirSync(dirname));
         this._files = files.map((filename) => {
             const stat = fs.statSync(path.join(dirname, filename));
-            return new ReferencesDocument(dirname, filename, stat);
+            return new FileItem(dirname, filename, stat);
         });
     }
 
@@ -99,6 +101,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         this.reload();
         vscode.window.showInformationMessage(`${p} is created.`);
     }
+
     rename(newName: string) {
         const f = this.getFile();
         if (!f) {
@@ -108,6 +111,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         this.reload();
         vscode.window.showInformationMessage(`${f.fileName} is renamed to ${n}`);
     }
+
     copy(newName: string) {
         const f = this.getFile();
         if (!f) {
@@ -116,10 +120,20 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         const n = path.join(this._dirname, newName);
         vscode.window.showInformationMessage(`${f.fileName} is copied to ${n}`);
     }
+
+    select() {
+        const f = this.getFile();
+        if (!f) {
+            return;
+        }
+        f.toggleSelect();
+        this.render();
+    }
+
     goUpDir() {
         const p = path.join(this._dirname, "..");
         const stats = fs.lstatSync(p);
-        const f = new ReferencesDocument(this._dirname, "..", stats);
+        const f = new FileItem(this._dirname, "..", stats);
         const uri = f.uri(this._fixed_window);
         this._dirname = p;
         this._onDidChange.fire(uri);
@@ -128,7 +142,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     /**
      * get file from cursor position.
      */
-    private getFile(): ReferencesDocument {
+    private getFile(): FileItem {
         const cursor = vscode.window.activeTextEditor.selection.active;
         if (cursor.line < 1) {
             return null;
