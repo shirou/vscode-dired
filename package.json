@@ -1,7 +1,7 @@
 {
   "name": "vscode-dired",
-  "displayName": "dired",
-  "description": "dired for VSCode",
+  "displayName": "vscode-dired",
+  "description": "dired(File Manager) for VSCode, like Emacs",
   "version": "0.0.1",
   "publisher": "rrudi",
   "license": "Apache-2.0",
