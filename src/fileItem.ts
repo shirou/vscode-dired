@@ -6,7 +6,7 @@ import * as path from 'path';
 
 var Mode = require('stat-mode');
 import DiredProvider from './provider';
-import { IDResolver } from './IDResolver';
+import { IDResolver } from './idResolver';
 import { encodeLocation, decodeLocation } from './utils';
 
 

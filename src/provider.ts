@@ -131,6 +131,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     }
 
     goUpDir() {
+        // TODO: if root, not goUp.
         const p = path.join(this._dirname, "..");
         const stats = fs.lstatSync(p);
         const f = new FileItem(this._dirname, "..", stats);

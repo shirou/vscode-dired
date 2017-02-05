@@ -6,11 +6,11 @@ import { encodeLocation, decodeLocation, FXIED_URI } from './utils';
 
 import * as path from 'path';
 
-export interface ExctensionInternal {
+export interface ExtensionInternal {
     DiredProvider: DiredProvider,
 }
 
-export function activate(context: vscode.ExtensionContext): ExctensionInternal {
+export function activate(context: vscode.ExtensionContext): ExtensionInternal {
     const fixed_window = true; // TODO: configurable
     const provider = new DiredProvider(fixed_window); 
 

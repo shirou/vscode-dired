@@ -10,10 +10,15 @@ This is a port from Emacs dired-mode.
 
 Filer used by only keyboard.
 
+## Configuration
+
+- `extension.dired.open`
+  - 
+
 ## Key Binding
 
 - `crtl+x f`
-  - open dired.
+  - open dired. 
 - `+`
   - Create new directory.
 - `R`
