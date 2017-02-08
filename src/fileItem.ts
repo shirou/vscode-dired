@@ -57,14 +57,14 @@ export default class FileItem {
         return `${se} ${this._mode.toString()} ${u} ${g} ${size} ${month} ${day} ${hour}:${min} ${this._filename}`;
     }
 
-    public uri(fixed_window: boolean): vscode.Uri {
+    public uri(fixed_window: boolean): vscode.Uri | undefined {
         const p = path.join(this._dirname, this._filename);
         if (this._mode.isDirectory()) {
             return encodeLocation(p, fixed_window);
         } else if (this._mode.isFile()) {
             return vscode.Uri.parse(`file://${p}`);
         }
-        return;
+        return undefined;
     }
 
     pad(num:number, size:number, p: string): string {

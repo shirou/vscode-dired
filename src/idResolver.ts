@@ -11,10 +11,10 @@ export class IDResolver {
         this.create(true);
         this.create(false);
     }
-    username(uid: Number):string {
+    username(uid: Number):string | undefined{
         return this._user_cache.get(uid);
     }
-    groupname(uid: Number):string {
+    groupname(uid: Number):string | undefined{
         return this._group_cache.get(uid);
     }
 

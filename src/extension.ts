@@ -18,7 +18,11 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
         vscode.workspace.registerTextDocumentContentProvider(DiredProvider.scheme, provider),
     );
     const commandOpen = vscode.commands.registerCommand("extension.dired.open", () => {
-        const doc = vscode.window.activeTextEditor.document;
+        const at = vscode.window.activeTextEditor;
+        if (!at) {
+            return;
+        }
+        const doc = at.document;
         const dir = path.dirname(doc.fileName);
         return provider.setDirName(dir)
             .then(() => vscode.workspace.openTextDocument(FXIED_URI))
@@ -30,6 +34,9 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
     const commandCreateDir = vscode.commands.registerCommand("extension.dired.createDir", () => {
         vscode.window.showInputBox()
         .then((dirName) => {
+            if (!dirName) {
+                return;
+            }
             provider.createDir(dirName);
         });
     });

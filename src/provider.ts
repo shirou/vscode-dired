@@ -44,6 +44,9 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             return;
         }
         const uri = f.uri(this._fixed_window);
+        if (!uri) {
+            return;
+        }
         if (uri.scheme !== DiredProvider.scheme){
             this.showFile(uri);
             return;
@@ -78,9 +81,13 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     provideTextDocumentContent(uri: vscode.Uri): string | Thenable<string> {       
         if (fs.lstatSync(this._dirname).isFile()) {
             this.showFile(uri);
-            return;
+            return "";
         }
-        vscode.window.activeTextEditor.options = {
+        const at = vscode.window.activeTextEditor;
+        if (!at) {
+            return "";
+        }
+        at.options = {
              cursorStyle: vscode.TextEditorCursorStyle.Underline,
         };
 
@@ -150,8 +157,12 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     /**
      * get file from cursor position.
      */
-    private getFile(): FileItem {
-        const cursor = vscode.window.activeTextEditor.selection.active;
+    private getFile(): FileItem | null {
+        const at = vscode.window.activeTextEditor;
+        if (!at) {
+            return null;
+        }
+        const cursor = at.selection.active;
         if (cursor.line < 1) {
             return null;
         }
