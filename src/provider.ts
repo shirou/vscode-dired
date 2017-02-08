@@ -44,13 +44,14 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             return;
         }
         const uri = f.uri(this._fixed_window);
-        this._dirname = f.path;
         if (uri.scheme !== DiredProvider.scheme){
             this.showFile(uri);
             return;
         }
-
-        this._onDidChange.fire(uri);
+        this.setDirName(f.path)
+            .then((dirname) => {
+                this._onDidChange.fire(uri);
+        });
     }
 
     reload() {
@@ -60,7 +61,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     }
 
     render() {
-        let lines = [
+        const lines = [
             this._dirname + ":", // header line
         ];
         return lines.concat(this._files.map((f) => {
@@ -68,7 +69,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         })).join('\n');
     }
 
-    showFile(uri: vscode.Uri){
+    showFile(uri: vscode.Uri) {
         vscode.workspace.openTextDocument(uri).then(doc => {
                 vscode.window.showTextDocument(doc);
         });
@@ -128,16 +129,22 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         }
         f.toggleSelect();
         this.render();
+        const uri = f.uri(this._fixed_window);
+        this._onDidChange.fire(uri);
     }
 
     goUpDir() {
-        // TODO: if root, not goUp.
+        if (this._dirname === "/") {
+            return;
+        }
         const p = path.join(this._dirname, "..");
         const stats = fs.lstatSync(p);
         const f = new FileItem(this._dirname, "..", stats);
         const uri = f.uri(this._fixed_window);
-        this._dirname = p;
-        this._onDidChange.fire(uri);
+        this.setDirName(p)
+            .then((dirname) => {
+                this._onDidChange.fire(uri);
+        });
     }
 
     /**
