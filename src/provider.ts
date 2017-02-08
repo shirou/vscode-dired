@@ -30,10 +30,14 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
 
     setDirName(dirname: string): Thenable<string>{
         return new Promise((resolve) => {
-            this._dirname = dirname;
-            if (fs.lstatSync(this._dirname).isDirectory()) {
-                this.readDir(dirname);
+            if (fs.lstatSync(dirname).isDirectory()) {
+                try {
+                    this.readDir(dirname);
+                } catch(err) {
+                    vscode.window.showErrorMessage(`Could not read ${dirname}: ${err}`);
+                }
             }
+            this._dirname = dirname;            
             resolve(dirname);
         });
     }
@@ -97,9 +101,21 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     readDir(dirname: string) {
         // TODO: Promisify readdir
         const files = [".", ".."].concat(fs.readdirSync(dirname));
-        this._files = files.map((filename) => {
-            const stat = fs.statSync(path.join(dirname, filename));
-            return new FileItem(dirname, filename, stat);
+        this._files = <FileItem[]>files.map((filename) => {
+            const p = path.join(dirname, filename);
+            try {
+                const stat = fs.statSync(p);
+                return new FileItem(dirname, filename, stat);
+            } catch(err) {
+                vscode.window.showErrorMessage(`Could not get stat of ${p}: ${err}`);
+                return null;
+            }
+        }).filter((fileItem) => {
+            if (fileItem){
+                return true;
+            }else{
+                return false;
+            }
         });
     }
 
@@ -145,13 +161,17 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             return;
         }
         const p = path.join(this._dirname, "..");
-        const stats = fs.lstatSync(p);
-        const f = new FileItem(this._dirname, "..", stats);
-        const uri = f.uri(this._fixed_window);
-        this.setDirName(p)
-            .then((dirname) => {
-                this._onDidChange.fire(uri);
-        });
+        try{
+            const stats = fs.lstatSync(p);
+            const f = new FileItem(this._dirname, "..", stats);
+            const uri = f.uri(this._fixed_window);
+            this.setDirName(p)
+                .then((dirname) => {
+                    this._onDidChange.fire(uri);
+            });
+        } catch (err) {
+            vscode.window.showInformationMessage(`Could not get stat of ${p}: ${err}`);
+        }
     }
 
     /**

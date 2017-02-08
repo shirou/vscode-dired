@@ -1,5 +1,6 @@
 'use strict';
 
+import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as readline from 'readline';
 
@@ -27,7 +28,7 @@ export class IDResolver {
         }
 
         if (fs.existsSync(path) === false) {
-            console.log(`${path} not found`);
+            vscode.window.showErrorMessage(`Could not get stat of ${path}`);
             return;
         }
         const rl = readline.createInterface({
