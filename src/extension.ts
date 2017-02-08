@@ -25,6 +25,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
         const doc = at.document;
         const dir = path.dirname(doc.fileName);
         return provider.setDirName(dir)
+            .then(() => provider.reload())
             .then(() => vscode.workspace.openTextDocument(FXIED_URI))
             .then(doc => vscode.window.showTextDocument(doc, 0));
     });
@@ -62,6 +63,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
         provider.select();
     });
     const commandClose = vscode.commands.registerCommand("extension.dired.close", () => {
+        provider.clear();
         vscode.commands.executeCommand('workbench.action.closeActiveEditor');
     });
 

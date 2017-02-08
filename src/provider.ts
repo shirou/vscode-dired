@@ -20,8 +20,15 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     }
 
     dispose() {
-        this._files = [];
+        this.clear();
         this._onDidChange.dispose();
+    }
+
+    /**
+     * clear provider information but not disposed.
+     */
+    clear() {
+        this._files = [];
     }
 
     get onDidChange() {
@@ -37,7 +44,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
                     vscode.window.showErrorMessage(`Could not read ${dirname}: ${err}`);
                 }
             }
-            this._dirname = dirname;            
+            this._dirname = dirname;
             resolve(dirname);
         });
     }
@@ -80,6 +87,8 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         vscode.workspace.openTextDocument(uri).then(doc => {
                 vscode.window.showTextDocument(doc);
         });
+        // TODO: show warning when open file failed
+        // vscode.window.showErrorMessage(`Could not open file ${uri.fsPath}: ${err}`);
     }
 
     provideTextDocumentContent(uri: vscode.Uri): string | Thenable<string> {       
@@ -94,7 +103,6 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         at.options = {
              cursorStyle: vscode.TextEditorCursorStyle.Underline,
         };
-
         return this.render();
     }
 
@@ -111,7 +119,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
                 return null;
             }
         }).filter((fileItem) => {
-            if (fileItem){
+            if (fileItem) {
                 return true;
             }else{
                 return false;
