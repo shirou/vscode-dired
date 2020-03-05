@@ -8,6 +8,7 @@ var Mode = require('stat-mode');
 import DiredProvider from './provider';
 import { IDResolver } from './idResolver';
 import { encodeLocation, decodeLocation } from './utils';
+import { URL } from 'url';
 
 
 export default class FileItem {
@@ -62,7 +63,8 @@ export default class FileItem {
         if (this._mode.isDirectory()) {
             return encodeLocation(p, fixed_window);
         } else if (this._mode.isFile()) {
-            return vscode.Uri.parse(`file://${p}`);
+            const u = new URL(`file:///${p}`);
+            return vscode.Uri.parse(u.href);
         }
         return undefined;
     }
