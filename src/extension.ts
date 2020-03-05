@@ -82,7 +82,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
     );
 
     vscode.window.onDidChangeActiveTextEditor((editor) => {
-        if (editor.document.uri.scheme === DiredProvider.scheme) {
+        if (editor && editor.document.uri.scheme === DiredProvider.scheme) {
             vscode.commands.executeCommand('setContext', 'dired.open', true);
         } else {
             vscode.commands.executeCommand('setContext', 'dired.open', false);
