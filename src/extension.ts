@@ -18,16 +18,21 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
         vscode.workspace.registerTextDocumentContentProvider(DiredProvider.scheme, provider),
     );
     const commandOpen = vscode.commands.registerCommand("extension.dired.open", () => {
+        let dir = vscode.workspace.rootPath;
         const at = vscode.window.activeTextEditor;
-        if (!at) {
-            return;
+        if (at) {
+            const doc = at.document;
+            dir = path.dirname(doc.fileName);
         }
-        const doc = at.document;
-        const dir = path.dirname(doc.fileName);
-        return provider.setDirName(dir)
-            .then(() => provider.reload())
-            .then(() => vscode.workspace.openTextDocument(FXIED_URI))
-            .then(doc => vscode.window.showTextDocument(doc, 0));
+        if (!dir) {
+            dir = require('os').homedir();
+        }
+        if (dir) {
+            return provider.setDirName(dir)
+                .then(() => provider.reload())
+                .then(() => vscode.workspace.openTextDocument(FXIED_URI))
+                .then(doc => vscode.window.showTextDocument(doc, 0));
+        }
     });
     const commandEnter = vscode.commands.registerCommand("extension.dired.enter", () => {
         provider.enter();
@@ -83,6 +88,9 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
 
     vscode.window.onDidChangeActiveTextEditor((editor) => {
         if (editor && editor.document.uri.scheme === DiredProvider.scheme) {
+            editor.options = {
+                 cursorStyle: vscode.TextEditorCursorStyle.Block,
+            };
             vscode.commands.executeCommand('setContext', 'dired.open', true);
         } else {
             vscode.commands.executeCommand('setContext', 'dired.open', false);

@@ -96,13 +96,6 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             this.showFile(uri);
             return "";
         }
-        const at = vscode.window.activeTextEditor;
-        if (!at) {
-            return "";
-        }
-        at.options = {
-             cursorStyle: vscode.TextEditorCursorStyle.Underline,
-        };
         return this.render();
     }
 
