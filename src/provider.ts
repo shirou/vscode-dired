@@ -49,6 +49,10 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         });
     }
 
+    get dirname() {
+        return this._dirname;    
+    }
+
     enter() {
         const f = this.getFile();
         if (!f) {

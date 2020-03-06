@@ -21,8 +21,12 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
         let dir = vscode.workspace.rootPath;
         const at = vscode.window.activeTextEditor;
         if (at) {
-            const doc = at.document;
-            dir = path.dirname(doc.fileName);
+            if (at.document.uri.scheme === DiredProvider.scheme) {
+                dir = provider.dirname;
+            } else {
+                const doc = at.document;
+                dir = path.dirname(doc.fileName);
+            }
         }
         if (!dir) {
             dir = require('os').homedir();
