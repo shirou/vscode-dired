@@ -11,7 +11,11 @@ export interface ExtensionInternal {
 }
 
 export function activate(context: vscode.ExtensionContext): ExtensionInternal {
-    const fixed_window = true; // TODO: configurable
+    let fixed_window = true;
+    const configuration = vscode.workspace.getConfiguration('dired');
+    if (configuration.has('fixed_window')) {
+        fixed_window = configuration.fixed_window;
+    }
     const provider = new DiredProvider(fixed_window); 
 
     const providerRegistrations = vscode.Disposable.from(
