@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { encodeLocation, decodeLocation, FXIED_URI } from './utils';
+import { encodeLocation, decodeLocation, FIXED_URI } from './utils';
 import FileItem from './fileItem';
 
 export default class DiredProvider implements vscode.TextDocumentContentProvider {

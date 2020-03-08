@@ -2,7 +2,7 @@
 
 import * as vscode from 'vscode';
 import DiredProvider from './provider';
-import { encodeLocation, decodeLocation, FXIED_URI } from './utils';
+import { encodeLocation, decodeLocation, FIXED_URI } from './utils';
 
 import * as path from 'path';
 
@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
         if (dir) {
             return provider.setDirName(dir)
                 .then(() => provider.reload())
-                .then(() => vscode.workspace.openTextDocument(FXIED_URI))
+                .then(() => vscode.workspace.openTextDocument(FIXED_URI))
                 .then(doc => vscode.window.showTextDocument(doc, 0));
         }
     });

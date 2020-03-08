@@ -4,11 +4,11 @@ import * as vscode from 'vscode';
 import DiredProvider from './provider';
 
 const FIXED_WINDOW_AUTHORITY = "fixed_window";
-export const FXIED_URI = vscode.Uri.parse('dired://fixed_window')
+export const FIXED_URI = vscode.Uri.parse('dired://fixed_window')
 
 export function encodeLocation(dir: string, fixed_window: boolean): vscode.Uri {
     if (fixed_window) {
-        return FXIED_URI;
+        return FIXED_URI;
     } else {
         return vscode.Uri.parse(`${DiredProvider.scheme}://${dir}`);
     }
