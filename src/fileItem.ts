@@ -44,8 +44,8 @@ export default class FileItem {
     }
 
     public line(column: Number): string {
-        const u = FileItem._resolver.username(this._stats.uid);
-        const g = FileItem._resolver.groupname(this._stats.gid);
+        const u = (FileItem._resolver.username(this._stats.uid) + "        ").substr(0, 8);
+        const g = (FileItem._resolver.groupname(this._stats.gid) + "        ").substr(0, 8);
         const size = this.pad(this._stats.size, 8, " ");
         const month = this.pad(this._stats.ctime.getMonth()+1, 2, "0");
         const day = this.pad(this._stats.ctime.getDay(), 2, "0");
