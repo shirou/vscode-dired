@@ -195,6 +195,13 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         if (cursor.line < 1) {
             return null;
         }
-        return this._files[cursor.line-1]; // 1 means direpath on top;
+        const doc = at.document;
+        if (doc) {
+            const line0 = doc.lineAt(0).text
+            const dir = line0.substr(0, line0.length - 1);
+            const lineText = doc.lineAt(cursor.line).text;
+            return FileItem.parseLine(dir, lineText);
+        }
+        return null;
     }
 }

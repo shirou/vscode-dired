@@ -29,7 +29,7 @@ export default class FileItem {
         private _selected: boolean) {}
 
     static _resolver = new IDResolver();
-    
+
     public static create(dir: string, filename: string, stats: fs.Stats) {
         const mode = new Mode(stats);
         return new FileItem(
@@ -76,6 +76,36 @@ export default class FileItem {
             se = "*";
         }
         return `${se} ${this._modeStr} ${u} ${g} ${size} ${month} ${day} ${hour}:${min} ${this._filename}`;
+    }
+
+    public static parseLine(dir: string, line: string): FileItem {
+        const filename = line.substr(52);
+        const username = line.substr(13, 8);
+        const groupname = line.substr(22, 8);
+        const size = parseInt(line.substr(31, 8));
+        const month = parseInt(line.substr(40, 2));
+        const day = parseInt(line.substr(43, 2));
+        const hour = parseInt(line.substr(46, 2));
+        const min = parseInt(line.substr(49, 2));
+        const modeStr = line.substr(2, 10);
+        const isDirectory = (modeStr.substr(0, 1) === "d");
+        const isFile = (modeStr.substr(0, 1) === "-");
+        const isSelected = (line.substr(0, 1) === "*");
+
+        return new FileItem(
+            dir,
+            filename,
+            username,
+            groupname,
+            size,
+            month,
+            day,
+            hour,
+            min,
+            modeStr,
+            isDirectory,
+            isFile,
+            isSelected);
     }
 
     public uri(fixed_window: boolean): vscode.Uri | undefined {
