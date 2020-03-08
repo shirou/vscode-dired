@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
         if (dir) {
             return provider.setDirName(dir)
                 .then(() => provider.reload())
-                .then(() => vscode.workspace.openTextDocument(FIXED_URI))
+                .then(() => vscode.workspace.openTextDocument(provider.uri ? provider.uri : FIXED_URI))
                 .then(doc => vscode.window.showTextDocument(doc, 0));
         }
     });

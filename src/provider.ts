@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { encodeLocation, decodeLocation, FIXED_URI } from './utils';
+import { encodeLocation, decodeLocation, getTextDocumentShowOptions, FIXED_URI } from './utils';
 import FileItem from './fileItem';
 
 export default class DiredProvider implements vscode.TextDocumentContentProvider {
@@ -53,6 +53,12 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         return this._dirname;    
     }
 
+    get uri() {
+        const f = this._files[0]; // must "."
+        const uri = f.uri(this._fixed_window);
+        return uri;
+    }
+
     enter() {
         const f = this.getFile();
         if (!f) {
@@ -67,15 +73,13 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             return;
         }
         this.setDirName(f.path)
-            .then((dirname) => {
-                this._onDidChange.fire(uri);
-        });
+        .then(() => this.reload())
+        .then(() => vscode.workspace.openTextDocument(this.uri ? this.uri : FIXED_URI))
+        .then(doc => vscode.window.showTextDocument(doc, getTextDocumentShowOptions(this._fixed_window)));
     }
 
     reload() {
-        const f = this._files[0]; // must "."
-        const uri = f.uri(this._fixed_window);
-        this._onDidChange.fire(uri);
+        this._onDidChange.fire(this.uri);
     }
 
     render() {
@@ -89,7 +93,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
 
     showFile(uri: vscode.Uri) {
         vscode.workspace.openTextDocument(uri).then(doc => {
-                vscode.window.showTextDocument(doc);
+                vscode.window.showTextDocument(doc, getTextDocumentShowOptions(this._fixed_window));
         });
         // TODO: show warning when open file failed
         // vscode.window.showErrorMessage(`Could not open file ${uri.fsPath}: ${err}`);

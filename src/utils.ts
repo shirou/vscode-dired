@@ -23,5 +23,12 @@ export function decodeLocation(uri: vscode.Uri): [string, vscode.Position] {
     } else {
         return [uri.fsPath, new vscode.Position(line, character)];
     }
+}
 
+export function getTextDocumentShowOptions(fixed_window: boolean): vscode.TextDocumentShowOptions {
+    const opts: vscode.TextDocumentShowOptions = {
+        preview: fixed_window,
+        viewColumn: vscode.ViewColumn.Active
+    };
+    return opts;
 }

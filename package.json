@@ -82,7 +82,7 @@
         "dired.fixed_window": {
           "type": "boolean",
           "default": "true",
-          "description": "Open same tab (not configurable currently)"
+          "description": "true: Open dired in the same tab / false: Open another tab for dired."
         }
       }
     }
