@@ -114,7 +114,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             const p = path.join(dirname, filename);
             try {
                 const stat = fs.statSync(p);
-                return new FileItem(dirname, filename, stat);
+                return FileItem.create(dirname, filename, stat);
             } catch(err) {
                 vscode.window.showErrorMessage(`Could not get stat of ${p}: ${err}`);
                 return null;
@@ -172,7 +172,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         const p = path.join(this._dirname, "..");
         try{
             const stats = fs.lstatSync(p);
-            const f = new FileItem(this._dirname, "..", stats);
+            const f = FileItem.create(this._dirname, "..", stats);
             const uri = f.uri(this._fixed_window);
             this.setDirName(p)
                 .then((dirname) => {

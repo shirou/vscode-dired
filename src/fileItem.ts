@@ -12,20 +12,40 @@ import { URL } from 'url';
 
 
 export default class FileItem {
-    private _uri: vscode.Uri;
-    private _stats: fs.Stats;
-    private _dirname: string;
-    private _filename: string;
-    private _mode: any;
-    private _selected: boolean;
+
+    constructor(
+        private _dirname: string,
+        private _filename: string,
+        private _username: string | undefined,
+        private _groupname: string | undefined,
+        private _size: number,
+        private _month: number,
+        private _day: number,
+        private _hour: number,
+        private _min: number,
+        private _modeStr: string,
+        private _isDirectory: boolean,
+        private _isFile: boolean,
+        private _selected: boolean) {}
 
     static _resolver = new IDResolver();
     
-    constructor(dir: string, filename: string, stats: fs.Stats) {
-        this._stats = stats;
-        this._dirname = dir;
-        this._filename = filename;
-        this._mode = new Mode(this._stats);
+    public static create(dir: string, filename: string, stats: fs.Stats) {
+        const mode = new Mode(stats);
+        return new FileItem(
+            dir,
+            filename,
+            FileItem._resolver.username(stats.uid),
+            FileItem._resolver.groupname(stats.gid),
+            stats.size,
+            stats.ctime.getMonth()+1,
+            stats.ctime.getDate(),
+            stats.ctime.getHours(),
+            stats.ctime.getMinutes(),
+            mode.toString(),
+            mode.isDirectory(),
+            mode.isFile(),
+            false);
     }
 
     toggleSelect(): void{
@@ -44,25 +64,25 @@ export default class FileItem {
     }
 
     public line(column: Number): string {
-        const u = (FileItem._resolver.username(this._stats.uid) + "        ").substr(0, 8);
-        const g = (FileItem._resolver.groupname(this._stats.gid) + "        ").substr(0, 8);
-        const size = this.pad(this._stats.size, 8, " ");
-        const month = this.pad(this._stats.ctime.getMonth()+1, 2, "0");
-        const day = this.pad(this._stats.ctime.getDay(), 2, "0");
-        const hour = this.pad(this._stats.ctime.getHours(), 2, "0");
-        const min = this.pad(this._stats.ctime.getMinutes(), 2, "0");
+        const u = (this._username + "        ").substr(0, 8);
+        const g = (this._groupname + "        ").substr(0, 8);
+        const size = this.pad(this._size, 8, " ");
+        const month = this.pad(this._month, 2, "0");
+        const day = this.pad(this._day, 2, "0");
+        const hour = this.pad(this._hour, 2, "0");
+        const min = this.pad(this._min, 2, "0");
         let se = " ";
         if (this._selected) {
             se = "*";
         }
-        return `${se} ${this._mode.toString()} ${u} ${g} ${size} ${month} ${day} ${hour}:${min} ${this._filename}`;
+        return `${se} ${this._modeStr} ${u} ${g} ${size} ${month} ${day} ${hour}:${min} ${this._filename}`;
     }
 
     public uri(fixed_window: boolean): vscode.Uri | undefined {
         const p = path.join(this._dirname, this._filename);
-        if (this._mode.isDirectory()) {
+        if (this._isDirectory) {
             return encodeLocation(p, fixed_window);
-        } else if (this._mode.isFile()) {
+        } else if (this._isFile) {
             const u = new URL(`file:///${p}`);
             return vscode.Uri.parse(u.href);
         }
