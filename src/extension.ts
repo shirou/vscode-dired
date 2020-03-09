@@ -72,7 +72,6 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
         provider.select();
     });
     const commandClose = vscode.commands.registerCommand("extension.dired.close", () => {
-        provider.clear();
         vscode.commands.executeCommand('workbench.action.closeActiveEditor');
     });
 

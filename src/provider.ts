@@ -12,24 +12,14 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     static scheme = 'dired'; // ex: dired://<directory>
 
     private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
-    private _files: FileItem[];
     private _fixed_window: boolean;
-    private _dirname: string;
 
     constructor(fixed_window: boolean) {
         this._fixed_window = fixed_window;
     }
 
     dispose() {
-        this.clear();
         this._onDidChange.dispose();
-    }
-
-    /**
-     * clear provider information but not disposed.
-     */
-    clear() {
-        this._files = [];
     }
 
     get onDidChange() {
@@ -103,13 +93,14 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     }
 
     select() {
-        const f = this.getFile();
-        if (!f) {
-            return;
-        }
-        f.toggleSelect();
-        this.render();
-        const uri = f.uri;
+        // const f = this.getFile();
+        // if (!f) {
+        //     return;
+        // }
+        // f.toggleSelect();
+        // this.render();
+        // const uri = f.uri;
+        const uri = this.uri;
         this._onDidChange.fire(uri);
     }
 
@@ -122,29 +113,27 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     }
 
     openDir(path: string) {
-        this.setDirName(path)
-            .then(() => this.reload())
-            .then(() => vscode.workspace.openTextDocument(this.uri))
-            .then(doc => vscode.window.showTextDocument(doc, this.getTextDocumentShowOptions(this._fixed_window)));
+        const f = new FileItem(path, "", true); // Incomplete FileItem just to get URI.
+        const uri = f.uri;
+        if (uri) {
+            vscode.workspace.openTextDocument(uri)
+                .then(doc => vscode.window.showTextDocument(doc, this.getTextDocumentShowOptions(this._fixed_window)));
+        }
     }
 
     provideTextDocumentContent(uri: vscode.Uri): string | Thenable<string> {
-        return this.render();
+        return this.render(uri.fsPath);
     }
 
     private get uri(): vscode.Uri {
-        const f = this._files[0]; // must "."
-        const uri = f.uri;
-        return uri ? uri : FIXED_URI;
-    }
-
-    private render() {
-        const lines = [
-            this._dirname + ":", // header line
-        ];
-        return lines.concat(this._files.map((f) => {
-            return f.line(1);
-        })).join('\n');
+        if (this.dirname) {
+            const f = new FileItem(this.dirname, "", true); // Incomplete FileItem just to get URI.
+            const uri = f.uri;
+            if (uri) {
+                return uri;
+            }
+        }
+        return FIXED_URI;
     }
 
     private showFile(uri: vscode.Uri) {
@@ -155,24 +144,31 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         // vscode.window.showErrorMessage(`Could not open file ${uri.fsPath}: ${err}`);
     }
 
-    private setDirName(dirname: string): Thenable<string> {
+    private render(dirname: string): Thenable<string> {
         return new Promise((resolve) => {
+            let files: FileItem[] = [];
             if (fs.lstatSync(dirname).isDirectory()) {
                 try {
-                    this.readDir(dirname);
+                    files = this.readDir(dirname);
                 } catch (err) {
                     vscode.window.showErrorMessage(`Could not read ${dirname}: ${err}`);
                 }
             }
-            this._dirname = dirname;
-            resolve(dirname);
+
+            const lines = [
+                dirname + ":", // header line
+            ];
+            const text: string = lines.concat(files.map((f) => {
+                return f.line(1);
+            })).join('\n');
+
+            resolve(text);
         });
     }
 
-    private readDir(dirname: string) {
-        // TODO: Promisify readdir
+    private readDir(dirname: string): FileItem[] {
         const files = [".", ".."].concat(fs.readdirSync(dirname));
-        this._files = <FileItem[]>files.map((filename) => {
+        return <FileItem[]>files.map((filename) => {
             const p = path.join(dirname, filename);
             try {
                 const stat = fs.statSync(p);
@@ -190,9 +186,6 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         });
     }
 
-    /**
-     * get file from cursor position.
-     */
     private getFile(): FileItem | null {
         const at = vscode.window.activeTextEditor;
         if (!at) {
@@ -202,9 +195,9 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         if (cursor.line < 1) {
             return null;
         }
-        if (this.dirname) {
-            const lineText = at.document.lineAt(cursor.line).text;
-            return FileItem.parseLine(this.dirname, lineText);
+        const lineText = at.document.lineAt(cursor.line);
+        if (this.dirname && lineText) {
+            return FileItem.parseLine(this.dirname, lineText.text);
         }
         return null;
     }

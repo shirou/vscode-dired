@@ -15,17 +15,17 @@ export default class FileItem {
     constructor(
         private _dirname: string,
         private _filename: string,
-        private _username: string | undefined,
-        private _groupname: string | undefined,
-        private _size: number,
-        private _month: number,
-        private _day: number,
-        private _hour: number,
-        private _min: number,
-        private _modeStr: string,
-        private _isDirectory: boolean,
-        private _isFile: boolean,
-        private _selected: boolean) {}
+        private _isDirectory: boolean = false,
+        private _isFile: boolean = true,
+        private _username: string | undefined = undefined,
+        private _groupname: string | undefined = undefined,
+        private _size: number = 0,
+        private _month: number = 0,
+        private _day: number = 0,
+        private _hour: number = 0,
+        private _min: number = 0,
+        private _modeStr: string | undefined = undefined,
+        private _selected: boolean = false) {}
 
     static _resolver = new IDResolver();
 
@@ -34,6 +34,8 @@ export default class FileItem {
         return new FileItem(
             dir,
             filename,
+            mode.isDirectory(),
+            mode.isFile(),
             FileItem._resolver.username(stats.uid),
             FileItem._resolver.groupname(stats.gid),
             stats.size,
@@ -42,8 +44,6 @@ export default class FileItem {
             stats.ctime.getHours(),
             stats.ctime.getMinutes(),
             mode.toString(),
-            mode.isDirectory(),
-            mode.isFile(),
             false);
     }
 
@@ -94,6 +94,8 @@ export default class FileItem {
         return new FileItem(
             dir,
             filename,
+            isDirectory,
+            isFile,
             username,
             groupname,
             size,
@@ -102,8 +104,6 @@ export default class FileItem {
             hour,
             min,
             modeStr,
-            isDirectory,
-            isFile,
             isSelected);
     }
 
