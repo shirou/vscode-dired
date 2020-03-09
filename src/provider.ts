@@ -129,10 +129,6 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     }
 
     provideTextDocumentContent(uri: vscode.Uri): string | Thenable<string> {
-        if (fs.lstatSync(this._dirname).isFile()) {
-            this.showFile(uri);
-            return "";
-        }
         return this.render();
     }
 
