@@ -4,8 +4,9 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { encodeLocation, decodeLocation, getTextDocumentShowOptions, FIXED_URI } from './utils';
 import FileItem from './fileItem';
+
+const FIXED_URI: vscode.Uri = vscode.Uri.parse('dired://fixed_window');
 
 export default class DiredProvider implements vscode.TextDocumentContentProvider {
     static scheme = 'dired'; // ex: dired://<directory>
@@ -63,10 +64,10 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         return dir;
     }
 
-    get uri() {
+    get uri(): vscode.Uri {
         const f = this._files[0]; // must "."
-        const uri = f.uri(this._fixed_window);
-        return uri;
+        const uri = f.uri;
+        return uri ? uri : FIXED_URI;
     }
 
     enter() {
@@ -74,7 +75,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         if (!f) {
             return;
         }
-        const uri = f.uri(this._fixed_window);
+        const uri = f.uri;
         if (!uri) {
             return;
         }
@@ -100,7 +101,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
 
     showFile(uri: vscode.Uri) {
         vscode.workspace.openTextDocument(uri).then(doc => {
-                vscode.window.showTextDocument(doc, getTextDocumentShowOptions(this._fixed_window));
+                vscode.window.showTextDocument(doc, this.getTextDocumentShowOptions(this._fixed_window));
         });
         // TODO: show warning when open file failed
         // vscode.window.showErrorMessage(`Could not open file ${uri.fsPath}: ${err}`);
@@ -174,7 +175,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         }
         f.toggleSelect();
         this.render();
-        const uri = f.uri(this._fixed_window);
+        const uri = f.uri;
         this._onDidChange.fire(uri);
     }
 
@@ -208,7 +209,15 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     private openDir(path: string) {
         this.setDirName(path)
         .then(() => this.reload())
-        .then(() => vscode.workspace.openTextDocument(this.uri ? this.uri : FIXED_URI))
-        .then(doc => vscode.window.showTextDocument(doc, getTextDocumentShowOptions(this._fixed_window)));
+        .then(() => vscode.workspace.openTextDocument(this.uri))
+        .then(doc => vscode.window.showTextDocument(doc, this.getTextDocumentShowOptions(this._fixed_window)));
+    }
+
+    private getTextDocumentShowOptions(fixed_window: boolean): vscode.TextDocumentShowOptions {
+        const opts: vscode.TextDocumentShowOptions = {
+            preview: fixed_window,
+            viewColumn: vscode.ViewColumn.Active
+        };
+        return opts;
     }
 }

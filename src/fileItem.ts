@@ -7,7 +7,6 @@ import * as path from 'path';
 var Mode = require('stat-mode');
 import DiredProvider from './provider';
 import { IDResolver } from './idResolver';
-import { encodeLocation, decodeLocation } from './utils';
 import { URL } from 'url';
 
 
@@ -108,10 +107,10 @@ export default class FileItem {
             isSelected);
     }
 
-    public uri(fixed_window: boolean): vscode.Uri | undefined {
+    public get uri(): vscode.Uri | undefined {
         const p = path.join(this._dirname, this._filename);
         if (this._isDirectory) {
-            return encodeLocation(p, fixed_window);
+            return vscode.Uri.parse(`${DiredProvider.scheme}://${p}`);
         } else if (this._isFile) {
             const u = new URL(`file:///${p}`);
             return vscode.Uri.parse(u.href);
