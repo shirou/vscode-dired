@@ -82,10 +82,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             this.showFile(uri);
             return;
         }
-        this.setDirName(f.path)
-        .then(() => this.reload())
-        .then(() => vscode.workspace.openTextDocument(this.uri ? this.uri : FIXED_URI))
-        .then(doc => vscode.window.showTextDocument(doc, getTextDocumentShowOptions(this._fixed_window)));
+        this.openDir(f.path);
     }
 
     reload() {
@@ -186,17 +183,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             return;
         }
         const p = path.join(this.dirname, "..");
-        try{
-            const stats = fs.lstatSync(p);
-            const f = FileItem.create(this.dirname, "..", stats);
-            const uri = f.uri(this._fixed_window);
-            this.setDirName(p)
-                .then((dirname) => {
-                    this._onDidChange.fire(uri);
-            });
-        } catch (err) {
-            vscode.window.showInformationMessage(`Could not get stat of ${p}: ${err}`);
-        }
+        this.openDir(p);
     }
 
     /**
@@ -216,5 +203,12 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             return FileItem.parseLine(this.dirname, lineText);
         }
         return null;
+    }
+
+    private openDir(path: string) {
+        this.setDirName(path)
+        .then(() => this.reload())
+        .then(() => vscode.workspace.openTextDocument(this.uri ? this.uri : FIXED_URI))
+        .then(doc => vscode.window.showTextDocument(doc, getTextDocumentShowOptions(this._fixed_window)));
     }
 }
