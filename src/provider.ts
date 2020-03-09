@@ -50,7 +50,17 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     }
 
     get dirname() {
-        return this._dirname;    
+        const at = vscode.window.activeTextEditor;
+        if (!at) {
+            return undefined;
+    }
+        const doc = at.document;
+        if (!doc) {
+            return undefined;
+        }
+        const line0 = doc.lineAt(0).text;
+        const dir = line0.substr(0, line0.length - 1);
+        return dir;
     }
 
     get uri() {
@@ -129,10 +139,12 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     }
 
     createDir(dirname: string) {
-        const p = path.join(this._dirname, dirname);
+        if(this.dirname) {
+            const p = path.join(this.dirname, dirname);
         fs.mkdirSync(p);
         this.reload();
         vscode.window.showInformationMessage(`${p} is created.`);
+    }
     }
 
     rename(newName: string) {
@@ -140,9 +152,11 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         if (!f) {
             return;
         }
-        const n = path.join(this._dirname, newName);
+        if (this.dirname) {
+            const n = path.join(this.dirname, newName);
         this.reload();
         vscode.window.showInformationMessage(`${f.fileName} is renamed to ${n}`);
+    }
     }
 
     copy(newName: string) {
@@ -150,8 +164,10 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         if (!f) {
             return;
         }
-        const n = path.join(this._dirname, newName);
+        if (this.dirname) {
+            const n = path.join(this.dirname, newName);
         vscode.window.showInformationMessage(`${f.fileName} is copied to ${n}`);
+    }
     }
 
     select() {
@@ -166,13 +182,13 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     }
 
     goUpDir() {
-        if (this._dirname === "/") {
+        if (!this.dirname || this.dirname === "/") {
             return;
         }
-        const p = path.join(this._dirname, "..");
+        const p = path.join(this.dirname, "..");
         try{
             const stats = fs.lstatSync(p);
-            const f = FileItem.create(this._dirname, "..", stats);
+            const f = FileItem.create(this.dirname, "..", stats);
             const uri = f.uri(this._fixed_window);
             this.setDirName(p)
                 .then((dirname) => {
@@ -195,12 +211,9 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         if (cursor.line < 1) {
             return null;
         }
-        const doc = at.document;
-        if (doc) {
-            const line0 = doc.lineAt(0).text
-            const dir = line0.substr(0, line0.length - 1);
-            const lineText = doc.lineAt(cursor.line).text;
-            return FileItem.parseLine(dir, lineText);
+        if (this.dirname) {
+            const lineText = at.document.lineAt(cursor.line).text;
+            return FileItem.parseLine(this.dirname, lineText);
         }
         return null;
     }
