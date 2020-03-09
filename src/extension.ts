@@ -35,10 +35,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
             dir = require('os').homedir();
         }
         if (dir) {
-            return provider.setDirName(dir)
-                .then(() => provider.reload())
-                .then(() => vscode.workspace.openTextDocument(provider.uri))
-                .then(doc => vscode.window.showTextDocument(doc, 0));
+            return provider.openDir(dir);
         }
     });
     const commandEnter = vscode.commands.registerCommand("extension.dired.enter", () => {

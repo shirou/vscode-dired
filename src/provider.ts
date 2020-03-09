@@ -36,25 +36,11 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         return this._onDidChange.event;
     }
 
-    setDirName(dirname: string): Thenable<string>{
-        return new Promise((resolve) => {
-            if (fs.lstatSync(dirname).isDirectory()) {
-                try {
-                    this.readDir(dirname);
-                } catch(err) {
-                    vscode.window.showErrorMessage(`Could not read ${dirname}: ${err}`);
-                }
-            }
-            this._dirname = dirname;
-            resolve(dirname);
-        });
-    }
-
     get dirname() {
         const at = vscode.window.activeTextEditor;
         if (!at) {
             return undefined;
-    }
+        }
         const doc = at.document;
         if (!doc) {
             return undefined;
@@ -62,12 +48,6 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         const line0 = doc.lineAt(0).text;
         const dir = line0.substr(0, line0.length - 1);
         return dir;
-    }
-
-    get uri(): vscode.Uri {
-        const f = this._files[0]; // must "."
-        const uri = f.uri;
-        return uri ? uri : FIXED_URI;
     }
 
     enter() {
@@ -79,7 +59,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         if (!uri) {
             return;
         }
-        if (uri.scheme !== DiredProvider.scheme){
+        if (uri.scheme !== DiredProvider.scheme) {
             this.showFile(uri);
             return;
         }
@@ -90,59 +70,13 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         this._onDidChange.fire(this.uri);
     }
 
-    render() {
-        const lines = [
-            this._dirname + ":", // header line
-        ];
-        return lines.concat(this._files.map((f) => {
-            return f.line(1);
-        })).join('\n');
-    }
-
-    showFile(uri: vscode.Uri) {
-        vscode.workspace.openTextDocument(uri).then(doc => {
-                vscode.window.showTextDocument(doc, this.getTextDocumentShowOptions(this._fixed_window));
-        });
-        // TODO: show warning when open file failed
-        // vscode.window.showErrorMessage(`Could not open file ${uri.fsPath}: ${err}`);
-    }
-
-    provideTextDocumentContent(uri: vscode.Uri): string | Thenable<string> {       
-        if (fs.lstatSync(this._dirname).isFile()) {
-            this.showFile(uri);
-            return "";
-        }
-        return this.render();
-    }
-
-    readDir(dirname: string) {
-        // TODO: Promisify readdir
-        const files = [".", ".."].concat(fs.readdirSync(dirname));
-        this._files = <FileItem[]>files.map((filename) => {
-            const p = path.join(dirname, filename);
-            try {
-                const stat = fs.statSync(p);
-                return FileItem.create(dirname, filename, stat);
-            } catch(err) {
-                vscode.window.showErrorMessage(`Could not get stat of ${p}: ${err}`);
-                return null;
-            }
-        }).filter((fileItem) => {
-            if (fileItem) {
-                return true;
-            }else{
-                return false;
-            }
-        });
-    }
-
     createDir(dirname: string) {
-        if(this.dirname) {
+        if (this.dirname) {
             const p = path.join(this.dirname, dirname);
-        fs.mkdirSync(p);
-        this.reload();
-        vscode.window.showInformationMessage(`${p} is created.`);
-    }
+            fs.mkdirSync(p);
+            this.reload();
+            vscode.window.showInformationMessage(`${p} is created.`);
+        }
     }
 
     rename(newName: string) {
@@ -152,9 +86,9 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         }
         if (this.dirname) {
             const n = path.join(this.dirname, newName);
-        this.reload();
-        vscode.window.showInformationMessage(`${f.fileName} is renamed to ${n}`);
-    }
+            this.reload();
+            vscode.window.showInformationMessage(`${f.fileName} is renamed to ${n}`);
+        }
     }
 
     copy(newName: string) {
@@ -164,8 +98,8 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         }
         if (this.dirname) {
             const n = path.join(this.dirname, newName);
-        vscode.window.showInformationMessage(`${f.fileName} is copied to ${n}`);
-    }
+            vscode.window.showInformationMessage(`${f.fileName} is copied to ${n}`);
+        }
     }
 
     select() {
@@ -187,6 +121,79 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         this.openDir(p);
     }
 
+    openDir(path: string) {
+        this.setDirName(path)
+            .then(() => this.reload())
+            .then(() => vscode.workspace.openTextDocument(this.uri))
+            .then(doc => vscode.window.showTextDocument(doc, this.getTextDocumentShowOptions(this._fixed_window)));
+    }
+
+    provideTextDocumentContent(uri: vscode.Uri): string | Thenable<string> {
+        if (fs.lstatSync(this._dirname).isFile()) {
+            this.showFile(uri);
+            return "";
+        }
+        return this.render();
+    }
+
+    private get uri(): vscode.Uri {
+        const f = this._files[0]; // must "."
+        const uri = f.uri;
+        return uri ? uri : FIXED_URI;
+    }
+
+    private render() {
+        const lines = [
+            this._dirname + ":", // header line
+        ];
+        return lines.concat(this._files.map((f) => {
+            return f.line(1);
+        })).join('\n');
+    }
+
+    private showFile(uri: vscode.Uri) {
+        vscode.workspace.openTextDocument(uri).then(doc => {
+            vscode.window.showTextDocument(doc, this.getTextDocumentShowOptions(this._fixed_window));
+        });
+        // TODO: show warning when open file failed
+        // vscode.window.showErrorMessage(`Could not open file ${uri.fsPath}: ${err}`);
+    }
+
+    private setDirName(dirname: string): Thenable<string> {
+        return new Promise((resolve) => {
+            if (fs.lstatSync(dirname).isDirectory()) {
+                try {
+                    this.readDir(dirname);
+                } catch (err) {
+                    vscode.window.showErrorMessage(`Could not read ${dirname}: ${err}`);
+                }
+            }
+            this._dirname = dirname;
+            resolve(dirname);
+        });
+    }
+
+    private readDir(dirname: string) {
+        // TODO: Promisify readdir
+        const files = [".", ".."].concat(fs.readdirSync(dirname));
+        this._files = <FileItem[]>files.map((filename) => {
+            const p = path.join(dirname, filename);
+            try {
+                const stat = fs.statSync(p);
+                return FileItem.create(dirname, filename, stat);
+            } catch (err) {
+                vscode.window.showErrorMessage(`Could not get stat of ${p}: ${err}`);
+                return null;
+            }
+        }).filter((fileItem) => {
+            if (fileItem) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+    }
+
     /**
      * get file from cursor position.
      */
@@ -204,13 +211,6 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             return FileItem.parseLine(this.dirname, lineText);
         }
         return null;
-    }
-
-    private openDir(path: string) {
-        this.setDirName(path)
-        .then(() => this.reload())
-        .then(() => vscode.workspace.openTextDocument(this.uri))
-        .then(doc => vscode.window.showTextDocument(doc, this.getTextDocumentShowOptions(this._fixed_window)));
     }
 
     private getTextDocumentShowOptions(fixed_window: boolean): vscode.TextDocumentShowOptions {
