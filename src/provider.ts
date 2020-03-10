@@ -123,6 +123,14 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         }
     }
 
+    showFile(uri: vscode.Uri) {
+        vscode.workspace.openTextDocument(uri).then(doc => {
+            vscode.window.showTextDocument(doc, this.getTextDocumentShowOptions(this._fixed_window));
+        });
+        // TODO: show warning when open file failed
+        // vscode.window.showErrorMessage(`Could not open file ${uri.fsPath}: ${err}`);
+    }
+
     provideTextDocumentContent(uri: vscode.Uri): string | Thenable<string> {
         return this.render();
     }
@@ -136,14 +144,6 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             }
         }
         return FIXED_URI;
-    }
-
-    private showFile(uri: vscode.Uri) {
-        vscode.workspace.openTextDocument(uri).then(doc => {
-            vscode.window.showTextDocument(doc, this.getTextDocumentShowOptions(this._fixed_window));
-        });
-        // TODO: show warning when open file failed
-        // vscode.window.showErrorMessage(`Could not open file ${uri.fsPath}: ${err}`);
     }
 
     private render(): Thenable<string> {
