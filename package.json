@@ -65,9 +65,14 @@
         "when": "dired.open"
       },
       {
-        "key": "space",
+        "key": "m",
         "command": "extension.dired.select",
-        "when": "dired.open"
+        "when": "dired.open && !findWidgetVisible"
+      },
+      {
+        "key": "u",
+        "command": "extension.dired.unselect",
+        "when": "dired.open && !findWidgetVisible"
       },
       {
         "key": "q",

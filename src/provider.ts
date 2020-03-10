@@ -13,6 +13,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
 
     private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
     private _fixed_window: boolean;
+    private _buffer: string[]; // This is a temporary buffer. Reused by multiple tabs.
 
     constructor(fixed_window: boolean) {
         this._fixed_window = fixed_window;
@@ -93,15 +94,11 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     }
 
     select() {
-        // const f = this.getFile();
-        // if (!f) {
-        //     return;
-        // }
-        // f.toggleSelect();
-        // this.render();
-        // const uri = f.uri;
-        const uri = this.uri;
-        this._onDidChange.fire(uri);
+        this.selectFiles(true);
+    }
+
+    unselect() {
+        this.selectFiles(false);
     }
 
     goUpDir() {
@@ -116,13 +113,14 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         const f = new FileItem(path, "", true); // Incomplete FileItem just to get URI.
         const uri = f.uri;
         if (uri) {
-            vscode.workspace.openTextDocument(uri)
+            this.createBuffer(path)
+                .then(() => vscode.workspace.openTextDocument(uri))
                 .then(doc => vscode.window.showTextDocument(doc, this.getTextDocumentShowOptions(this._fixed_window)));
         }
     }
 
     provideTextDocumentContent(uri: vscode.Uri): string | Thenable<string> {
-        return this.render(uri.fsPath);
+        return this.render();
     }
 
     private get uri(): vscode.Uri {
@@ -144,7 +142,13 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         // vscode.window.showErrorMessage(`Could not open file ${uri.fsPath}: ${err}`);
     }
 
-    private render(dirname: string): Thenable<string> {
+    private render(): Thenable<string> {
+        return new Promise((resolve) => {
+            resolve(this._buffer.join('\n'));
+        });
+    }
+
+    private createBuffer(dirname: string): Thenable<string[]> {
         return new Promise((resolve) => {
             let files: FileItem[] = [];
             if (fs.lstatSync(dirname).isDirectory()) {
@@ -155,14 +159,12 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
                 }
             }
 
-            const lines = [
+            this._buffer = [
                 dirname + ":", // header line
             ];
-            const text: string = lines.concat(files.map((f) => {
-                return f.line(1);
-            })).join('\n');
+            this._buffer = this._buffer.concat(files.map((f) => f.line()));
 
-            resolve(text);
+            resolve(this._buffer);
         });
     }
 
@@ -200,6 +202,57 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             return FileItem.parseLine(this.dirname, lineText.text);
         }
         return null;
+    }
+
+    private selectFiles(value: boolean) {
+        if (!this.dirname) {
+            return;
+        }
+        const at = vscode.window.activeTextEditor;
+        if (!at) {
+            return;
+        }
+        const doc = at.document;
+        if (!doc) {
+            return;
+        }
+        this._buffer = [];
+        for (let i = 0; i < doc.lineCount; i++) {
+            this._buffer.push(doc.lineAt(i).text);
+        }
+
+        let start = 0;
+        let end = 0;
+        let allowSelectDot = false; // Want to copy emacs's behavior exactly
+
+        if (at.selection.isEmpty) {
+            const cursor = at.selection.active;
+            if (cursor.line === 0) { // Select all
+                start = 1;
+                end = doc.lineCount;
+            } else {
+                allowSelectDot = true;
+                start = cursor.line;
+                end = cursor.line + 1;
+                vscode.commands.executeCommand("cursorMove", { to: "down", by: "line" });
+            }
+        } else {
+            start = at.selection.start.line;
+            end = at.selection.end.line;
+        }
+
+        for (let i = start; i < end; i++) {
+            const f = FileItem.parseLine(this.dirname, this._buffer[i]);
+            if (f.fileName === "." || f.fileName === "..") {
+                if (!allowSelectDot) {
+                    continue;
+                }
+            }
+            f.select(value);
+            this._buffer[i] = f.line();
+        }
+        const uri = this.uri;
+        this._onDidChange.fire(uri);
     }
 
     private getTextDocumentShowOptions(fixed_window: boolean): vscode.TextDocumentShowOptions {

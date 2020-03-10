@@ -47,12 +47,8 @@ export default class FileItem {
             false);
     }
 
-    toggleSelect(): void{
-        if (this._selected) {
-            this._selected = false;
-        } else {
-            this._selected = true;
-        }
+    select(value : boolean) {
+        this._selected = value;
     }
 
     get path(): string {
@@ -62,7 +58,7 @@ export default class FileItem {
         return this._filename;
     }
 
-    public line(column: Number): string {
+    public line(): string {
         const u = (this._username + "        ").substr(0, 8);
         const g = (this._groupname + "        ").substr(0, 8);
         const size = this.pad(this._size, 8, " ");
