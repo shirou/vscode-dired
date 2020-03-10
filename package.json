@@ -75,6 +75,11 @@
         "when": "dired.open && !findWidgetVisible"
       },
       {
+        "key": "g",
+        "command": "extension.dired.refresh",
+        "when": "dired.open"
+      },
+      {
         "key": "q",
         "command": "extension.dired.close",
         "when": "dired.open"

@@ -58,7 +58,11 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     }
 
     reload() {
-        this._onDidChange.fire(this.uri);
+        if (!this.dirname) {
+            return;
+        }
+        this.createBuffer(this.dirname)
+            .then(() => this._onDidChange.fire(this.uri));
     }
 
     createDir(dirname: string) {
