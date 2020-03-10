@@ -42,47 +42,47 @@
       {
         "key": "enter",
         "command": "extension.dired.enter",
-        "when": "dired.open"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
       },
       {
         "key": "shift+=",
         "command": "extension.dired.createDir",
-        "when": "dired.open"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
       },
       {
         "key": "shift+r",
         "command": "extension.dired.rename",
-        "when": "dired.open"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
       },
       {
         "key": "shift+c",
         "command": "extension.dired.copy",
-        "when": "dired.open"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
       },
       {
         "key": "shift+b",
         "command": "extension.dired.goUpDir",
-        "when": "dired.open"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
       },
       {
         "key": "m",
         "command": "extension.dired.select",
-        "when": "dired.open && !findWidgetVisible"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
       },
       {
         "key": "u",
         "command": "extension.dired.unselect",
-        "when": "dired.open && !findWidgetVisible"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
       },
       {
         "key": "g",
         "command": "extension.dired.refresh",
-        "when": "dired.open"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
       },
       {
         "key": "q",
         "command": "extension.dired.close",
-        "when": "dired.open"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
       }
     ],
     "configuration": {
