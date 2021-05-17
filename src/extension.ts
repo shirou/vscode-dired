@@ -66,6 +66,10 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
     const commandEnter = vscode.commands.registerCommand("extension.dired.enter", () => {
         provider.enter();
     });
+    const commandToggleDotFiles = vscode.commands.registerCommand("extension.dired.toggleDotFiles", () => {
+        provider.toggleDotFiles();
+    });
+
     const commandCreateDir = vscode.commands.registerCommand("extension.dired.createDir", () => {
         vscode.window.showInputBox()
             .then((dirName) => {
@@ -107,6 +111,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
         provider,
         commandOpen,
         commandEnter,
+        commandToggleDotFiles,
         commandCreateDir,
         commandRename,
         commandCopy,

@@ -35,6 +35,11 @@
     ],
     "keybindings": [
       {
+        "key": ".",
+        "command": "extension.dired.toggleDotFiles",
+        "when": "editorTextFocus && !inDebugRepl"
+      },
+      {
         "key": "ctrl+x f",
         "command": "extension.dired.open",
         "when": "editorTextFocus && !inDebugRepl"
