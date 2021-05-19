@@ -13,6 +13,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
 
     private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
     private _fixed_window: boolean;
+    private _show_dot_files: boolean = true; 
     private _buffer: string[]; // This is a temporary buffer. Reused by multiple tabs.
 
     constructor(fixed_window: boolean) {
@@ -39,6 +40,11 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         const line0 = doc.lineAt(0).text;
         const dir = line0.substr(0, line0.length - 1);
         return dir;
+    }
+
+    toggleDotFiles() {
+        this._show_dot_files = !this._show_dot_files;
+        this.reload();
     }
 
     enter() {
@@ -185,7 +191,10 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             }
         }).filter((fileItem) => {
             if (fileItem) {
-                return true;
+                if (this._show_dot_files) return true;
+                let filename = fileItem.fileName;
+                if (filename == '..' || filename == '.' ) return true;
+                return filename.substring(0, 1) != '.';
             } else {
                 return false;
             }
