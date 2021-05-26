@@ -37,7 +37,7 @@
       {
         "key": ".",
         "command": "extension.dired.toggleDotFiles",
-        "when": "editorTextFocus && !inDebugRepl"
+        "when": "dired.open && editorTextFocus && !inDebugRepl"
       },
       {
         "key": "ctrl+x f",
