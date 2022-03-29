@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import FileItem from './fileItem';
+import * as autoBox from './autocompletedInputBox'
 
 const FIXED_URI: vscode.Uri = vscode.Uri.parse('dired://fixed_window');
 
@@ -13,10 +14,11 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
 
     private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
     private _fixed_window: boolean;
-    private _show_dot_files: boolean = true; 
-    private _buffer: string[]; // This is a temporary buffer. Reused by multiple tabs.
+    private _show_dot_files: boolean = true;
+    private _buffers: string[]; // This is a temporary buffer. Reused by multiple tabs.
 
-    constructor(fixed_window: boolean) {
+    constructor(fixed_window: boolean)
+    {
         this._fixed_window = fixed_window;
     }
 
@@ -38,7 +40,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             return undefined;
         }
         const line0 = doc.lineAt(0).text;
-        const dir = line0.substr(0, line0.length - 1);
+        const dir = line0.substring(0, line0.length - 1);
         return dir;
     }
 
@@ -71,13 +73,21 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             .then(() => this._onDidChange.fire(this.uri));
     }
 
-    createDir(dirname: string) {
+    async createDir(dirname: string) {
         if (this.dirname) {
             const p = path.join(this.dirname, dirname);
-            fs.mkdirSync(p);
+            let uri = vscode.Uri.file(p);
+            await vscode.workspace.fs.createDirectory(uri);
             this.reload();
-            vscode.window.showInformationMessage(`${p} is created.`);
         }
+    }
+
+    async createFile(filename: string)
+    {
+        const uri = vscode.Uri.file(filename);
+        const document = await vscode.workspace.openTextDocument(uri);
+        await vscode.window.showTextDocument(document, { preview: false });
+        this.reload();
     }
 
     rename(newName: string) {
@@ -125,13 +135,16 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         if (uri) {
             this.createBuffer(path)
                 .then(() => vscode.workspace.openTextDocument(uri))
-                .then(doc => vscode.window.showTextDocument(doc, this.getTextDocumentShowOptions(this._fixed_window)));
+                .then(doc => vscode.window.showTextDocument(
+                    doc,
+                    this.getTextDocumentShowOptions(true)
+                ));
         }
     }
 
     showFile(uri: vscode.Uri) {
         vscode.workspace.openTextDocument(uri).then(doc => {
-            vscode.window.showTextDocument(doc, this.getTextDocumentShowOptions(this._fixed_window));
+            vscode.window.showTextDocument(doc, this.getTextDocumentShowOptions(false));
         });
         // TODO: show warning when open file failed
         // vscode.window.showErrorMessage(`Could not open file ${uri.fsPath}: ${err}`);
@@ -154,7 +167,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
 
     private render(): Thenable<string> {
         return new Promise((resolve) => {
-            resolve(this._buffer.join('\n'));
+            resolve(this._buffers.join('\n'));
         });
     }
 
@@ -169,12 +182,12 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
                 }
             }
 
-            this._buffer = [
+            this._buffers = [
                 dirname + ":", // header line
             ];
-            this._buffer = this._buffer.concat(files.map((f) => f.line()));
+            this._buffers = this._buffers.concat(files.map((f) => f.line()));
 
-            resolve(this._buffer);
+            resolve(this._buffers);
         });
     }
 
@@ -229,9 +242,9 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         if (!doc) {
             return;
         }
-        this._buffer = [];
+        this._buffers = [];
         for (let i = 0; i < doc.lineCount; i++) {
-            this._buffer.push(doc.lineAt(i).text);
+            this._buffers.push(doc.lineAt(i).text);
         }
 
         let start = 0;
@@ -255,14 +268,14 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         }
 
         for (let i = start; i < end; i++) {
-            const f = FileItem.parseLine(this.dirname, this._buffer[i]);
+            const f = FileItem.parseLine(this.dirname, this._buffers[i]);
             if (f.fileName === "." || f.fileName === "..") {
                 if (!allowSelectDot) {
                     continue;
                 }
             }
             f.select(value);
-            this._buffer[i] = f.line();
+            this._buffers[i] = f.line();
         }
         const uri = this.uri;
         this._onDidChange.fire(uri);
