@@ -7,7 +7,7 @@ import * as path from 'path';
 var Mode = require('stat-mode');
 import DiredProvider from './provider';
 import { IDResolver } from './idResolver';
-import { URL } from 'url';
+import { URL, pathToFileURL } from 'url';
 
 
 export default class FileItem {
@@ -108,7 +108,7 @@ export default class FileItem {
         if (this._isDirectory) {
             return vscode.Uri.parse(`${DiredProvider.scheme}://${p}`);
         } else if (this._isFile) {
-            const u = new URL(`file:///${p}`);
+            const u = pathToFileURL(p);
             return vscode.Uri.parse(u.href);
         }
         return undefined;
