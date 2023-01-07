@@ -55,6 +55,11 @@
         "when": "dired.open && !findWidgetVisible && !inQuickOpen"
       },
       {
+        "key": "ctrl+x =",
+        "command": "extension.dired.createFile",
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
+      },
+      {
         "key": "shift+r",
         "command": "extension.dired.rename",
         "when": "dired.open && !findWidgetVisible && !inQuickOpen"

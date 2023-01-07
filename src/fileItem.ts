@@ -59,8 +59,8 @@ export default class FileItem {
     }
 
     public line(): string {
-        const u = (this._username + "        ").substr(0, 8);
-        const g = (this._groupname + "        ").substr(0, 8);
+        const u = (this._username + "        ").substring(0, 8);
+        const g = (this._groupname + "        ").substring(0, 8);
         const size = this.pad(this._size, 8, " ");
         const month = this.pad(this._month, 2, "0");
         const day = this.pad(this._day, 2, "0");
@@ -74,18 +74,18 @@ export default class FileItem {
     }
 
     public static parseLine(dir: string, line: string): FileItem {
-        const filename = line.substr(52);
-        const username = line.substr(13, 8);
-        const groupname = line.substr(22, 8);
-        const size = parseInt(line.substr(31, 8));
-        const month = parseInt(line.substr(40, 2));
-        const day = parseInt(line.substr(43, 2));
-        const hour = parseInt(line.substr(46, 2));
-        const min = parseInt(line.substr(49, 2));
-        const modeStr = line.substr(2, 10);
-        const isDirectory = (modeStr.substr(0, 1) === "d");
-        const isFile = (modeStr.substr(0, 1) === "-");
-        const isSelected = (line.substr(0, 1) === "*");
+        const filename = line.substring(52);
+        const username = line.substring(13, 13 + 8);
+        const groupname = line.substring(22, 22 + 8);
+        const size = parseInt(line.substring(31, 31 + 8));
+        const month = parseInt(line.substring(40, 40 + 2));
+        const day = parseInt(line.substring(43, 43 + 2));
+        const hour = parseInt(line.substring(46, 46 + 2));
+        const min = parseInt(line.substring(49, 49 + 2));
+        const modeStr = line.substring(2, 2 + 10);
+        const isDirectory = (modeStr.substring(0, 0 + 1) === "d");
+        const isFile = (modeStr.substring(0, 1) === "-");
+        const isSelected = (line.substring(0, 1) === "*");
 
         return new FileItem(
             dir,
