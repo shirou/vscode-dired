@@ -91,6 +91,15 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
                 provider.copy(newName);
             });
     });
+
+    const commandDelete = vscode.commands.registerCommand("extension.dired.delete", () => {
+        vscode.window.showInformationMessage("Delete this file ?", {modal: true}, "Yes", "No").then(item => {
+                if (item == "Yes") {
+                    provider.delete();
+                }
+            });
+    });
+
     const commandGoUpDir = vscode.commands.registerCommand("extension.dired.goUpDir", () => {
         provider.goUpDir();
     });
@@ -118,6 +127,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
         commandGoUpDir,
         commandRefresh,
         commandClose,
+        commandDelete,
         commandSelect,
         providerRegistrations
     );

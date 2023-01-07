@@ -103,6 +103,19 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         }
     }
 
+    delete() {
+        const f = this.getFile();
+        if (!f) {
+            return;
+        }
+        if (this.dirname) {
+            const n = path.join(this.dirname, f.fileName);
+            fs.unlinkSync(n);
+            this.reload();
+            vscode.window.showInformationMessage(`${n} was deleted`);
+        }
+    }
+
     select() {
         this.selectFiles(true);
     }
