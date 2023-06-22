@@ -12,7 +12,7 @@
   "bugs": {
     "url": "https://github.com/shirou/vscode-dired/issues"
   },
-   "engines": {
+  "engines": {
     "vscode": "^1.65.0"
   },
   "categories": [
@@ -98,6 +98,20 @@
         "key": "q",
         "command": "extension.dired.close",
         "when": "dired.open && !findWidgetVisible && !inQuickOpen"
+      }
+    ],
+    "languages": [
+      {
+        "id": "dired",
+        "extensions": [""],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+       "language": "dired",
+        "scopeName": "source.dired",
+        "path": "./dired.tmLanguage.json"
       }
     ],
     "configuration": {

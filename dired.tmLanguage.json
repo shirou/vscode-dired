@@ -1,0 +1,26 @@
+{
+  "name": "dired",
+  "scopeName": "source.dired",
+  "patterns": [
+    {
+      "name": "entity.name.directory.dired",
+      "begin": "^ *d.*",
+      "end": "$",
+      "patterns": [
+        {
+          "include": "#directory"
+        }
+      ]
+    }
+  ],
+  "repository": {
+    "directory": {
+      "match": "^ *d.*$",
+      "name": "keyword"
+    },
+    "hidden": {
+      "match": "^\\..*$",
+      "name": "comment"
+    }
+  }
+}
