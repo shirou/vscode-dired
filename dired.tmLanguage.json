@@ -28,7 +28,7 @@
       "end": "$",
       "beginCaptures": {
         "1": {
-          "name": "entity.name.namespace.file.ext.dired"
+          "name": "constant.numeric.file.ext.dired"
         }
       }
     }
