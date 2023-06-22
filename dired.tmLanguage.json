@@ -3,24 +3,34 @@
   "scopeName": "source.dired",
   "patterns": [
     {
-      "name": "entity.name.directory.dired",
-      "begin": "^ *d.*",
+      "name": "entity.directory.dired",
+      "begin": "^ *d[^ ]+ +[^ ]+ +[^ ]+ +[^ ]+ +[^ ]+ +[^ ]+ +[^ ]+ +(.*)",
       "end": "$",
-      "patterns": [
-        {
-          "include": "#directory"
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.directory.dired"
         }
-      ]
-    }
-  ],
-  "repository": {
-    "directory": {
-      "match": "^ *d.*$",
-      "name": "keyword"
+      }
     },
-    "hidden": {
-      "match": "^\\..*$",
-      "name": "comment"
+    {
+      "name": "entity.executable.dired",
+      "begin": "^ *[^ d]+x +[^ ]+ +[^ ]+ +[^ ]+ +[^ ]+ +[^ ]+ +[^ ]+ +(.+)",
+      "end": "$",
+      "beginCaptures": {
+        "1": {
+          "name": "string.quoted.executable.dired"
+        }
+      }
+    },
+    {
+      "name": "entity.file.ext.dired",
+      "begin": "^ *[^ d]+ +[^ ]+ +[^ ]+ +[^ ]+ +[^ ]+ +[^ ]+ +[^ ]+ +.*(\\..+)",
+      "end": "$",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.namespace.file.ext.dired"
+        }
+      }
     }
-  }
+  ]
 }
