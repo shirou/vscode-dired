@@ -17,8 +17,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     private _show_dot_files: boolean = true;
     private _buffers: string[]; // This is a temporary buffer. Reused by multiple tabs.
 
-    constructor(fixed_window: boolean)
-    {
+    constructor(fixed_window: boolean) {
         this._fixed_window = fixed_window;
     }
 
@@ -82,8 +81,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         }
     }
 
-    async createFile(filename: string)
-    {
+    async createFile(filename: string) {
         const uri = vscode.Uri.file(filename);
         const document = await vscode.workspace.openTextDocument(uri);
         await vscode.window.showTextDocument(document, { preview: false });
@@ -148,10 +146,14 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
         if (uri) {
             this.createBuffer(path)
                 .then(() => vscode.workspace.openTextDocument(uri))
-                .then(doc => vscode.window.showTextDocument(
-                    doc,
-                    this.getTextDocumentShowOptions(true)
-                ));
+                .then(doc => {
+                    vscode.window.showTextDocument(
+                        doc,
+                        this.getTextDocumentShowOptions(true)
+                    );
+                    vscode.languages.setTextDocumentLanguage(doc, "dired");
+                }
+                );
         }
     }
 
@@ -219,7 +221,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
             if (fileItem) {
                 if (this._show_dot_files) return true;
                 let filename = fileItem.fileName;
-                if (filename == '..' || filename == '.' ) return true;
+                if (filename == '..' || filename == '.') return true;
                 return filename.substring(0, 1) != '.';
             } else {
                 return false;
