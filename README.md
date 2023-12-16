@@ -1,4 +1,4 @@
-# vscode-dired 
+# vscode-dired
 
 *vscode-dired* is an File Manager (or Directory Editor) for VS Code.
 
@@ -13,12 +13,11 @@ Filer used by only keyboard.
 ## Configuration
 
 - `extension.dired.open`
-  - 
 
 ## Key Binding
 
 - `crtl+x f`
-  - open dired. 
+  - open dired.
 - `+`
   - Create new directory.
 - `R`

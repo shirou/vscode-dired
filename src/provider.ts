@@ -189,7 +189,7 @@ export default class DiredProvider implements vscode.TextDocumentContentProvider
     private createBuffer(dirname: string): Thenable<string[]> {
         return new Promise((resolve) => {
             let files: FileItem[] = [];
-            if (fs.lstatSync(dirname).isDirectory()) {
+            if (fs.statSync(dirname).isDirectory()) {
                 try {
                     files = this.readDir(dirname);
                 } catch (err) {
