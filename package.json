@@ -47,57 +47,57 @@
       {
         "key": "enter",
         "command": "extension.dired.enter",
-        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "key": "shift+=",
         "command": "extension.dired.createDir",
-        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "key": "ctrl+x =",
         "command": "extension.dired.createFile",
-        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "key": "shift+r",
         "command": "extension.dired.rename",
-        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "key": "shift+d",
         "command": "extension.dired.delete",
-        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "key": "shift+c",
         "command": "extension.dired.copy",
-        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "key": "shift+b",
         "command": "extension.dired.goUpDir",
-        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "key": "m",
         "command": "extension.dired.select",
-        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "key": "u",
         "command": "extension.dired.unselect",
-        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "key": "g",
         "command": "extension.dired.refresh",
-        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "key": "q",
         "command": "extension.dired.close",
-        "when": "dired.open && !findWidgetVisible && !inQuickOpen"
+        "when": "dired.open && !findWidgetVisible && !inQuickOpen && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       }
     ],
     "languages": [
