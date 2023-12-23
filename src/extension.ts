@@ -51,9 +51,9 @@ export function activate(context: vscode.ExtensionContext): ExtensionInternal {
                         if (!path) {
                             return;
                         }
-                        if (fs.lstatSync(path).isDirectory()) {
+                        if (fs.statSync(path).isDirectory()) {
                             provider.openDir(path);
-                        } else if (fs.lstatSync(path).isFile()) {
+                        } else if (fs.statSync(path).isFile()) {
                             const f = new FileItem(path, "", false, true); // Incomplete FileItem just to get URI.
                             const uri = f.uri;
                             if (uri) {
